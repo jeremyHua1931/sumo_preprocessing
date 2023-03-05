@@ -10,7 +10,7 @@ xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xs
     </input>
 
     <output>
-        <output-file value="map.net.xml.gz"/>
+        <output-file value="osm.net.xml.gz"/>
         <output.street-names value="true"/>
         <output.original-names value="true"/>
     </output>
