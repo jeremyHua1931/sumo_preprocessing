@@ -102,7 +102,7 @@ def parse_read_main(new_net_xml_file):
     connections=read_res_parse_connections()
 
     xml_core=trans_xml_edges(edges=edges)+"\n"+trans_xml_junctions(junctions=junctions)+"\n"+trans_xml_connections(connections=connections)
-    f=open('new_xml_core.xml','w')
+    f=open('new_xml_core.xml', 'w')
     print(xml_core,file=f)
     f.close()
 
@@ -123,7 +123,9 @@ def parse_read_main(new_net_xml_file):
         root.remove(connection)
 
     # 保存修改后的XML文件
-    tree.write('new_'+new_net_xml_file)
+    new_name=str(new_net_xml_file).split("/")[1]
+
+    tree.write(str("new_"+new_name))
 
 
 

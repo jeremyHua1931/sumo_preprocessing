@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 import json
 import os
 import time
-import parse_read as res_read
+import src.parse_read as res_read
 
 
 def parse_edges(root) -> list:
