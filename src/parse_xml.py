@@ -2,35 +2,32 @@
 """
 @File    :   parse_xml.py
 @Contact :   jeremyhua@foxmail.com
- 
+
 @Modify Time      @Author       @Version     @Description
 ------------      -------       --------     -----------
 2023/3/5 14:03   HuaZhangzhao    1.0          parse net.xml
 """
-import xml.etree.ElementTree as ET
 import json
-import os
-import time
-import src.parse_read as res_read
+import xml.etree.ElementTree as ET
 
 
 def parse_edges(root) -> list:
     # 提取edge元素
-    edges_orign = []
     edges = []
     for edge in root.iter('edge'):
         edge_id = edge.get('id')
-        edge_dict={}
-        if edge.get('function')=="internal":
-            function = edge.get('function')
-            edge_dict = {}
-            edge_dict = {'id': edge_id, 'function': function}
+        if edge.get('function') == "internal":
+            e_function = edge.get('function')
+            edge_dict = {'id': edge_id, 'function': e_function}
         else:
-            e_from=edge.get('from')
-            e_to=edge.get('to')
-            e_priority=edge.get('priority')
-            edge_dict = {}
-            edge_dict = {'id': edge_id, 'from': e_from, 'to': e_to, 'priority': e_priority}
+            e_from = edge.get('from')
+            e_to = edge.get('to')
+            e_priority = edge.get('priority')
+            edge_dict = {
+                'id': edge_id,
+                'from': e_from,
+                'to': e_to,
+                'priority': e_priority}
         lanes = []
         for lane in edge.iter('lane'):
             lane_dict = lane.attrib
@@ -38,7 +35,7 @@ def parse_edges(root) -> list:
         edge_dict['lanes'] = lanes
         edges.append(edge_dict)
 
-    edges_orign = edges
+    edges_origin = edges
     # 获取边的数量
     num_edges = len(edges)
 
@@ -67,7 +64,7 @@ def parse_edges(root) -> list:
         for j in range(num_lanes):
             old_lane_id = edges[i]['lanes'][j]['id']
 
-            new_lane_id = str((i+1) * 100)+"_"+str(-1 + lane_id_counter)
+            new_lane_id = str((i + 1) * 100) + "_" + str(-1 + lane_id_counter)
             # new_lane_id = str((i+1) * 100 + lane_id_counter)
 
             lane_id_map[old_lane_id] = new_lane_id
@@ -82,11 +79,10 @@ def parse_edges(root) -> list:
     with open('res/result_id_map_lane.json', 'w') as f:
         json.dump(lane_id_map, f)
 
-    return edges_orign, edges, edge_id_map, lane_id_map
+    return edges_origin, edges, edge_id_map, lane_id_map
 
 
-def parse_junction(root, edge_id_map, lane_id_map):
-    junctions_orign = []
+def parse_junction(root, lane_id_map):
     junctions = []
     # 提取junction元素
     for junction in root.iter('junction'):
@@ -101,7 +97,7 @@ def parse_junction(root, edge_id_map, lane_id_map):
         junction_dict['requests'] = requests
         junctions.append(junction_dict)
 
-    junctions_orign = junctions
+    junctions_origin = junctions
 
     for x in junctions:
         inc_lanes = x['incLanes'].split()
@@ -110,45 +106,43 @@ def parse_junction(root, edge_id_map, lane_id_map):
                 inc_lanes[i] = lane_id_map[inc_lanes[i]]
         x['incLanes'] = ' '.join(inc_lanes)
 
-        intLanes = x['intLanes'].split()
-        for i in range(len(intLanes)):
-            if intLanes[i] in lane_id_map:
-                intLanes[i] = lane_id_map[intLanes[i]]
-        x['intLanes'] = ' '.join(intLanes)
+        int_lanes = x['intLanes'].split()
+        for i in range(len(int_lanes)):
+            if int_lanes[i] in lane_id_map:
+                int_lanes[i] = lane_id_map[int_lanes[i]]
+        x['intLanes'] = ' '.join(int_lanes)
 
         if x['id'] in lane_id_map:
-            x['id']=str(":"+lane_id_map[x['id']])
+            x['id'] = str(":" + lane_id_map[x['id']])
 
     # 保存结果
     with open('res/result_junctions_parse.json', 'w') as f:
         json.dump(junctions, f)
 
-    return junctions_orign, junctions
+    return junctions_origin, junctions
 
 
 def parse_connection(root, edge_id_map, lane_id_map):
-    connections_orign = []
     connections = []
     # 提取connection元素
     for connection in root.iter('connection'):
         connection_dict = connection.attrib
         connections.append(connection_dict)
-    connections_orign = connections
+    connections_origin = connections
 
     for x in connections:
         if x['from'] in edge_id_map:
             x['from'] = edge_id_map[x['from']]
         if x['to'] in edge_id_map:
             x['to'] = edge_id_map[x['to']]
-        if 'via' in x:
-            if x['via'] in lane_id_map:
-                x['via'] = lane_id_map[x['via']]
+        if 'via' in x and x['via'] in lane_id_map:
+            x['via'] = lane_id_map[x['via']]
 
     # 保存结果
     with open('res/result_connections_parse.json', 'w') as f:
         json.dump(connections, f)
 
-    return connections_orign, connections
+    return connections_origin, connections
 
 
 def parse_xml_main(net_xml_file):
@@ -157,9 +151,11 @@ def parse_xml_main(net_xml_file):
     root = tree.getroot()
 
     # 定义存储edge、junction和connection的列表
-    edges_orign, edges, edge_id_map, lane_id_map = parse_edges(root=root)
-    junctions_orign, junctions = parse_junction(root=root, edge_id_map=edge_id_map, lane_id_map=lane_id_map)
-    connections_orign, connections = parse_connection(root=root, edge_id_map=edge_id_map, lane_id_map=lane_id_map)
+    edges_origin, edges, edge_id_map, lane_id_map = parse_edges(root=root)
+    junctions_origin, junctions = parse_junction(
+        root=root, lane_id_map=lane_id_map)
+    connections_origin, connections = parse_connection(
+        root=root, edge_id_map=edge_id_map, lane_id_map=lane_id_map)
 
     print("edge tage number: ", len(edges))
     print("junction tage number: ", len(junctions))
@@ -180,4 +176,3 @@ def parse_xml_main(net_xml_file):
     # print("{:=^50s}".format("Lanes_id_maps"))
     # for x in lane_id_map:
     #     print(x, "\t", lane_id_map[x])
-
