@@ -1,0 +1,44 @@
+<net xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.16" junctionCornerDetail="5" limitTurnSpeed="5.50" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+
+    <location netOffset="0.00,0.00" convBoundary="-43.70,1.43,118.13,104.21" origBoundary="10000000000.00,10000000000.00,-10000000000.00,-10000000000.00" projParameter="!" />
+
+    <tlLogic id="J0" type="static" programID="0" offset="0">
+        <phase duration="37" state="GggrrGG" />
+        <phase duration="3" state="yggrryy" />
+        <phase duration="6" state="GGGrrrr" />
+        <phase duration="3" state="yyyrrrr" />
+        <phase duration="1" state="rrrrrrr" />
+        <phase duration="36" state="rrrGGGr" />
+        <phase duration="3" state="rrryyyr" />
+        <phase duration="1" state="rrrrrrr" />
+    </tlLogic>
+    <tlLogic id="J1" type="static" programID="0" offset="0">
+        <phase duration="42" state="GGGGgrrrrGGGGgrrrr" />
+        <phase duration="3" state="yyyyyrrrryyyyyrrrr" />
+        <phase duration="42" state="rrrrrGGGgrrrrrGGGg" />
+        <phase duration="3" state="rrrrryyyyrrrrryyyy" />
+    </tlLogic>
+    <tlLogic id="J2" type="static" programID="0" offset="0">
+        <phase duration="42" state="GGGgrr" />
+        <phase duration="3" state="yyyyrr" />
+        <phase duration="42" state="GrrrGG" />
+        <phase duration="3" state="yrrryy" />
+    </tlLogic>
+    <tlLogic id="J3" type="static" programID="0" offset="0">
+        <phase duration="37" state="GggrrGG" />
+        <phase duration="3" state="yggrryy" />
+        <phase duration="6" state="GGGrrrr" />
+        <phase duration="3" state="yyyrrrr" />
+        <phase duration="1" state="rrrrrrr" />
+        <phase duration="36" state="rrrGGGr" />
+        <phase duration="3" state="rrryyyr" />
+        <phase duration="1" state="rrrrrrr" />
+    </tlLogic>
+    <tlLogic id="J4" type="static" programID="0" offset="0">
+        <phase duration="42" state="GgrrGG" />
+        <phase duration="3" state="yyrryy" />
+        <phase duration="42" state="rrGGGr" />
+        <phase duration="3" state="rryyyr" />
+    </tlLogic>
+
+    </net>
