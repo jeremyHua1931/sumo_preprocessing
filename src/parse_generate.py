@@ -5,13 +5,21 @@
  
 @Modify Time      @Author       @Version     @Description
 ------------      -------       --------     -----------
-2023/3/5 21:10   HuaZhangzhao    1.0         None
+2023/3/5 21:10   HuaZhangzhao    1.0         generate new net.xml
 """
 from src import parse_read
 import xml.etree.ElementTree as ET
 
 
 def generate_edge(edges):
+    """
+    This function is used to generate the xml part of edges
+    Args:
+        edges: edges
+
+    Returns: xml String of edge's tags
+
+    """
     root = ET.Element("root")
     for item in edges:
         element = ET.SubElement(root, "edge", item)
@@ -22,6 +30,14 @@ def generate_edge(edges):
 
 
 def generate_junction(junctions):
+    """
+    This function is used to generate the xml part of junctions
+    Args:
+        junctions: edges
+
+    Returns: xml String of junction's tags
+
+    """
     root = ET.Element('root')
     for item in junctions:
         if 'shape' in item:
@@ -39,6 +55,14 @@ def generate_junction(junctions):
 
 
 def generate_connection(connections):
+    """
+    This function is used to generate the xml part of connections
+    Args:
+        connections: edges
+
+    Returns: xml String of connection's tags
+
+    """
     root = ET.Element('root')
     for item in connections:
         connection = ET.SubElement(root, 'connection')
@@ -48,6 +72,15 @@ def generate_connection(connections):
 
 
 def get_origin_info(origin_file, generate_file):
+    """
+    This function is used to copy the origin xml , delete some related tags and already to insert
+    Args:
+        origin_file: origin net.xml
+        generate_file: the position of new generated net.xml
+
+    Returns: a new generated net.xml demo without edge, junction, connections tags and so on
+
+    """
     # 解析原始XML文件
     tree = ET.parse(origin_file)
     root = tree.getroot()
@@ -70,6 +103,16 @@ def get_origin_info(origin_file, generate_file):
 
 
 def generate_complete_new_xml(generate_file):
+    """
+    This function is used to call detail parse functions mentioned above
+    and write the relevant information of the organization
+    into the new net.xml demo generated into complete net.xml.
+    Args:
+        generate_file: the position of new net.xml demo some tags
+
+    Returns: None
+
+    """
     edges = parse_read.read_res_parse_edges()
     junctions = parse_read.read_res_parse_junctions()
     connections = parse_read.read_res_parse_connections()

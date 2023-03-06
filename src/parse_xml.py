@@ -5,14 +5,21 @@
 
 @Modify Time      @Author       @Version     @Description
 ------------      -------       --------     -----------
-2023/3/5 14:03   HuaZhangzhao    1.0          parse net.xml
+2023/3/5 14:03   HuaZhangzhao    1.0          parse net.xml into .jsons
 """
 import json
 import xml.etree.ElementTree as ET
 
 
 def parse_edges(root) -> list:
-    # 提取edge元素
+    """
+    This function is used to extract edge tags
+    Args:
+        root: the origin net.xml
+
+    Returns: results is preserved in /res
+
+    """
     edges = []
     for edge in root.iter('edge'):
         edge_id = edge.get('id')
@@ -48,6 +55,7 @@ def parse_edges(root) -> list:
         # 替换边的id
         old_edge_id = edges[i]['id']
         new_edge_id = str((i + 1) * 100)
+        # ! Attention:带有"internal"的边属于自动生成的边,一般来说需要数字id前面加上":"
         # if 'function' in edges[i]:
         #     if edges[i]['function']=="internal":
         #         new_edge_id=str(":"+new_edge_id)
@@ -64,7 +72,10 @@ def parse_edges(root) -> list:
         for j in range(num_lanes):
             old_lane_id = edges[i]['lanes'][j]['id']
 
+            # the difference between the generation of lane_id
+            # now the lane_id is  200_1
             new_lane_id = str((i + 1) * 100) + "_" + str(-1 + lane_id_counter)
+            # however, lane_id here is 200+1=201
             # new_lane_id = str((i+1) * 100 + lane_id_counter)
 
             lane_id_map[old_lane_id] = new_lane_id
@@ -79,12 +90,20 @@ def parse_edges(root) -> list:
     with open('res/result_id_map_lane.json', 'w') as f:
         json.dump(lane_id_map, f)
 
-    return edges_origin, edges, edge_id_map, lane_id_map
+    return [edges_origin, edges, edge_id_map, lane_id_map]
 
 
 def parse_junction(root, lane_id_map):
+    """
+    This function is used to extract junction tags
+    Args:
+        root: the origin net.xml
+        lane_id_map:  (old_lane_id: new_lane_id)
+
+    Returns: results is preserved in /res
+
+    """
     junctions = []
-    # 提取junction元素
     for junction in root.iter('junction'):
         junction_id = junction.get('id')
         junction_type = junction.get('type')
@@ -99,6 +118,8 @@ def parse_junction(root, lane_id_map):
 
     junctions_origin = junctions
 
+    # 替换边的新id
+    # 自动生成的junction(其id为边id, 对应的edge标签带有function="internal"), 需要加上":"
     for x in junctions:
         inc_lanes = x['incLanes'].split()
         for i in range(len(inc_lanes)):
@@ -112,6 +133,9 @@ def parse_junction(root, lane_id_map):
                 int_lanes[i] = lane_id_map[int_lanes[i]]
         x['intLanes'] = ' '.join(int_lanes)
 
+        # ! Attention: # 以带有"internal"的边id为junction的新id,
+        # 属于自动生成的junction, 地图上多个junction重合, 只保留一个主要的junction
+        # 一般来说需要数字id前面加上":"
         if x['id'] in lane_id_map:
             x['id'] = str(":" + lane_id_map[x['id']])
 
@@ -123,13 +147,23 @@ def parse_junction(root, lane_id_map):
 
 
 def parse_connection(root, edge_id_map, lane_id_map):
+    """
+    This function is used to extract connection tags
+    Args:
+        root: the origin net.xml
+        edge_id_map: (old_edge_id: new_edge_id)
+        lane_id_map: (old_lane_id: new_lane_id)
+
+    Returns: results is preserved in /res
+
+    """
     connections = []
-    # 提取connection元素
     for connection in root.iter('connection'):
         connection_dict = connection.attrib
         connections.append(connection_dict)
     connections_origin = connections
 
+    # 替换边的新id
     for x in connections:
         if x['from'] in edge_id_map:
             x['from'] = edge_id_map[x['from']]
@@ -146,6 +180,14 @@ def parse_connection(root, edge_id_map, lane_id_map):
 
 
 def parse_xml_main(net_xml_file):
+    """
+    This function is used to call detail parse functions mentioned above
+    Args:
+        net_xml_file: the origin net.xml
+
+    Returns: None
+
+    """
     # 解析XML文件
     tree = ET.parse(net_xml_file)
     root = tree.getroot()
@@ -160,19 +202,4 @@ def parse_xml_main(net_xml_file):
     print("edge tage number: ", len(edges))
     print("junction tage number: ", len(junctions))
     print("connect tage number: ", len(connections))
-
-    # print("{:=^50s}".format("Edges"))
-    # for x in edges:
-    #     print(x)
-    # print("{:=^50s}".format("Junctions"))
-    # for x in junctions:
-    #     print(x)
-    # print("{:=^50s}".format("Connections"))
-    # for x in connections:
-    #     print(x)
-    # print("{:=^50s}".format("Edges_id_maps"))
-    # for x in edge_id_map:
-    #     print(x, "\t", edge_id_map[x])
-    # print("{:=^50s}".format("Lanes_id_maps"))
-    # for x in lane_id_map:
-    #     print(x, "\t", lane_id_map[x])
+    print("Parse net.xml is completed!")
